@@ -1,7 +1,16 @@
+import sys
 import time
-import hierholzer
-import fleury
-import import_map
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.algoritmos import hierholzer
+from src.algoritmos import fleury
+from src.execucao import import_map
+from src.validacao.check_eulerian import isEulerCircuit
+from src.visualizacao.grafico_tempos import salvar_grafico_tempos
 
 
 def comparar_algoritmos():
@@ -11,9 +20,16 @@ def comparar_algoritmos():
         print("Nenhum grafo encontrado em listas_adjacencias.json.")
         return
 
+    metricas = []
+
     for indice, grafo in enumerate(grafos):
         if not grafo:
             print(f"Grafo {indice}: vazio.")
+            continue
+
+        estado = isEulerCircuit(grafo)
+        if estado == 0:
+            print(f"Grafo {indice}: não possui circuito euleriano.")
             continue
 
         grafo_hierholzer = [lista[:] for lista in grafo]
@@ -27,10 +43,22 @@ def comparar_algoritmos():
         circuito_fleury = fleury.circuito_euleriano(grafo_fleury, inicio=0)
         tempo_fleury = time.perf_counter() - inicio
 
+        metricas.append({
+            "grafo": f"Grafo {indice}",
+            "Hierholzer": tempo_hierholzer,
+            "Fleury": tempo_fleury,
+        })
+
         print(f"Grafo {indice}:")
+        print(f"  Circuito Hierholzer: {circuito_hierholzer}")
         print(f"  Hierholzer: {tempo_hierholzer:.6f} s")
         print(f"  Fleury:    {tempo_fleury:.6f} s")
         print("-" * 40)
+
+    if metricas:
+        caminho = salvar_grafico_tempos(metricas, pasta_saida="imagens")
+        if caminho:
+            print(f"Gráfico salvo em: {caminho}")
 
 
 def main():

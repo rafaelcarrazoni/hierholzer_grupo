@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 def dfs_contagem(grafo, v, visitados):
     visitados.add(v)
     count = 1
@@ -36,8 +37,7 @@ def proxima_aresta(grafo, u):
 
 
 def circuito_euleriano(adjacencia, inicio=None):
-
-    grafo = deepcopy(adjacencia)  
+    grafo = deepcopy(adjacencia)
     num_arestas = sum(len(v) for v in grafo.values()) // 2
 
     if inicio is None:
